@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+
 export default function Nav() {
   return (
     <nav className="flex items-center h-14 px-4 border-b bg-white w-full dark:bg-gray-950 md:h-20 md:px-6 lg:justify-end">
@@ -18,7 +19,7 @@ export default function Nav() {
       <div className="ml-auto">
         <Link
           className="font-semibold px-4 py-2 rounded-full"
-          href="/signup"
+          href="/auth"
           style={{
             background: "#f3f4f6",
           }}

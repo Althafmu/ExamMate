@@ -20,11 +20,11 @@ export default function Hero() {
   ${JSON.stringify(text)}  
   
   Feedback:
-  1. **Format**: Ensure the questions follows a standard format with clear sec (e.g., Contact Information, Summary/Objective, Work Experience, Education).
-  2. **Content**: Evaluate the content of the resume. Ensure it includes relevant skills, experiences, achievements, and qualifications tailored to the job position.
-  3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
-  4. **Keywords**: Ensure the resume contains relevant keywords related to the job position to pass through ATS systems.
-  5. **Overall Impression**: Provide an overall impression of the resume and any additional suggestions for improvement.
+1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
+2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
+3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
+4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.
+5. **Overall Impression**: Provide an overall impression of the answer and any additional suggestions for improvement.
   
   
   Output Format (JSON):

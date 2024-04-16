@@ -77,6 +77,7 @@ const SignUp = (props: Props) => {
   };
 
   return (
+    <div className=''>
     <Card>
       <CardHeader>
         <CardTitle className="text-center">Sign Up</CardTitle>
@@ -129,6 +130,7 @@ const SignUp = (props: Props) => {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 };
 

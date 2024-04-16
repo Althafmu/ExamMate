@@ -23,9 +23,7 @@ export default function Hero() {
 1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
 2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
 3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
-4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.
-5. **Overall Impression**: Provide an overall impression of the answer and any additional suggestions for improvement.
-  
+4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.  
   
   Output Format (JSON):
   [
@@ -83,13 +81,13 @@ export default function Hero() {
                   className="border border-dashed border-gray-200 w-full p-4 rounded-lg dark:border-gray-800"
                 >
                   <h3 className="text-lg font-semibold">
-                    Question: {question.question_number}
+                    <b>Question:</b> {question.question_number}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <b className="text-gray-500 dark:text-gray-400">
                     {question.question_text}
-                  </p>
+                  </b>
                   <p className="text-gray-500 dark:text-gray-400">
-                    {question.answer}
+                    answer: {question.answer}
                   </p>
                 </div>
               ))}

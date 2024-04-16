@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 export function Auth() {
   const router = useRouter();
   return (
+    <div className='flex justify-center mt-8'>
     <Tabs defaultValue="signup" className="w-[400px]">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="signup">Sign-Up</TabsTrigger>
@@ -20,5 +21,6 @@ export function Auth() {
         <Login router={router} />
       </TabsContent>
     </Tabs>
+    </div>
   );
 }

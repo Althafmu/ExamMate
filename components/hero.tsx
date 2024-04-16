@@ -20,12 +20,10 @@ export default function Hero() {
   ${JSON.stringify(text)}  
   
   Feedback:
-  1. **Format**: Ensure the questions follows a standard format with clear sec (e.g., Contact Information, Summary/Objective, Work Experience, Education).
-  2. **Content**: Evaluate the content of the resume. Ensure it includes relevant skills, experiences, achievements, and qualifications tailored to the job position.
-  3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
-  4. **Keywords**: Ensure the resume contains relevant keywords related to the job position to pass through ATS systems.
-  5. **Overall Impression**: Provide an overall impression of the resume and any additional suggestions for improvement.
-  
+1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
+2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
+3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
+4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.  
   
   Output Format (JSON):
   [
@@ -83,13 +81,13 @@ export default function Hero() {
                   className="border border-dashed border-gray-200 w-full p-4 rounded-lg dark:border-gray-800"
                 >
                   <h3 className="text-lg font-semibold">
-                    Question: {question.question_number}
+                    <b>Question:</b> {question.question_number}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <b className="text-gray-500 dark:text-gray-400">
                     {question.question_text}
-                  </p>
+                  </b>
                   <p className="text-gray-500 dark:text-gray-400">
-                    {question.answer}
+                    answer: {question.answer}
                   </p>
                 </div>
               ))}

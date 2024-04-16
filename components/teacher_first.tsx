@@ -35,7 +35,6 @@ export default function teacher_first() {
           <div className="flex items-center space-x-4 w-full">
             <input
               id="fourMark"
-              name="questionType"
               type="radio"
               value="4 mark"
             />
@@ -52,7 +51,6 @@ export default function teacher_first() {
           <div className="flex items-center space-x-4 w-full">
             <input
               id="sevenMark"
-              name="questionType"
               type="radio"
               value="7 mark"
             />
@@ -69,7 +67,6 @@ export default function teacher_first() {
           <div className="flex items-center space-x-4 w-full">
             <input
               id="tenMark"
-              name="questionType"
               type="radio"
               value="10 mark"
             />
@@ -86,7 +83,6 @@ export default function teacher_first() {
           <div className="flex items-center space-x-4 w-full">
             <input
               id="fourteenMark"
-              name="questionType"
               type="radio"
               value="14 mark"
             />

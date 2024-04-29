@@ -79,7 +79,7 @@ const fetchData = async () => {
               <Button variant="outline">Upload PDF</Button>
             </div>
             <div className="grid w-full gap-4">
-              <h2 className="text-2xl font-semibold">Output</h2>
+              <h2 className="text-2xl font-semibold">Questions</h2>
               <div className="border border-dashed border-gray-200 w-full p-4 rounded-lg dark:border-gray-800" />
               
             </div>

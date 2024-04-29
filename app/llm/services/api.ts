@@ -35,8 +35,7 @@ interface Config {
   
       if (response.ok) {
         const content = await response.json();
-        console.log(content);
-        const output = JSON.parse(content.output.choices[0].text);
+        const output = content.output.choices[0].text;
         return output;
       } else {
         throw new Error(`Request failed with status code ${response.status}`);

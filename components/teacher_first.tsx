@@ -1,7 +1,21 @@
+'use client';
+
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import pdfToText from 'react-pdftotext';
 
 export default function teacher_first() {
+  const [text, setText] = useState('');
+
+  function extractText(event: any) {
+    const file = event.target.files[0];
+    pdfToText(file)
+      .then((text: string) => {
+        console.log(text);
+        setText(text);
+      })
+      .catch((error: any) => console.error('Failed to extract text from pdf'));
+  }
   return (
     <div
       key="1"
@@ -11,7 +25,7 @@ export default function teacher_first() {
         <div className="text-4xl font-bold tracking-tighter">Examate</div>
         <div className=" justify-center max-w-sm items-center flex gap-1">
           <Label htmlFor="pdf">Upload PDF</Label>
-          <Input id="pdf" type="file" className="w-full" />
+          <input type="file" accept="application/pdf" onChange={extractText} />
         </div>
         <h2 className="text-lg font-semibold mt-4">Choose Questions</h2>
         <div className="flex flex-col mt-2 space-y-2 w-full max-w-md">
@@ -33,11 +47,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input
-              id="fourMark"
-              type="radio"
-              value="4 mark"
-            />
+            <input id="fourMark" type="radio" value="4 mark" />
             <Label htmlFor="fourMark">4 mark questions</Label>
             <select className="select w-full" id="fourMarkCount" name="count">
               <option value="">Count</option>
@@ -49,11 +59,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input
-              id="sevenMark"
-              type="radio"
-              value="7 mark"
-            />
+            <input id="sevenMark" type="radio" value="7 mark" />
             <Label htmlFor="sevenMark">7 mark questions</Label>
             <select className="select w-full" id="sevenMarkCount" name="count">
               <option value="">Count</option>
@@ -65,11 +71,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input
-              id="tenMark"
-              type="radio"
-              value="10 mark"
-            />
+            <input id="tenMark" type="radio" value="10 mark" />
             <Label htmlFor="tenMark">10 mark questions</Label>
             <select className="select w-full" id="tenMarkCount" name="count">
               <option value="">Count</option>
@@ -81,11 +83,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input
-              id="fourteenMark"
-              type="radio"
-              value="14 mark"
-            />
+            <input id="fourteenMark" type="radio" value="14 mark" />
             <Label htmlFor="fourteenMark">14 mark questions</Label>
             <select
               className="select w-full"
@@ -103,10 +101,7 @@ export default function teacher_first() {
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Generate
           </button>
-          <div
-            key="1"
-            className="flex flex-cols items-center justify-center  "
-          >
+          <div key="1" className="flex flex-cols items-center justify-center  ">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
               <div className="flex flex-col mt-1 space-y-2 w-full max-w-md">
                 {[...Array(5)].map((_, index) => (

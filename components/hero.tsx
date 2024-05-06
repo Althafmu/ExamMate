@@ -8,7 +8,6 @@
 import { llm_inference } from '@/app/llm/services/api';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { set } from 'react-hook-form';
 
 export default function Hero() {
   const [text, setText] = useState('');

@@ -9,79 +9,45 @@ import pdfToText from 'react-pdftotext';
 export default function teacher_first() {
   const [text, setText] = useState('');
   const [questions, setQuestions] = useState<any[]>([]);
-  const [selectedMark, setSelectedMark] = useState('');
-  const generatePrompt = (mark: any, wordCount: any, questionCount: any) => {
-    return `
-      As a professor at a prestigious university renowned for its rigorous examination standards, you've been tasked with creating a set of challenging yet fair questions for the upcoming university exams. Your goal is to design questions that thoroughly test the students' understanding of the subject matter while also encouraging critical thinking and application of concepts. Utilize the provided text or data to generate a diverse range of questions spanning different topics and difficulty levels, ensuring that the exam adequately assesses the students' mastery of the course material. Your questions should be clear, concise, and structured in a way that facilitates effective evaluation of the students' knowledge and skills.
-      
-      Questions Details:
-      ${JSON.stringify(text)}  
-      
-      Feedback:
-      1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
-      2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
-      3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
-      4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.  
-      
-      Output Format (JSON):
-      [
-        ${[...Array(questionCount)]
-          .map(
-            (_, index) =>
-              `{
-            "question_number": "question ${index + 1}",
-            "difficulty": "Medium", // You can adjust difficulty as needed
-            "word_count": "${wordCount} words",
-            "mark": "${mark} mark",
-            "topic": "Theory", // You can adjust the topic as needed
-            "question_text": "Write a ${mark}-mark question that contains ${wordCount} words.",
-            "answer": "This is a sample answer."
-          }`,
-          )
-          .join(',')}
-      ]
-    `;
-  };
-
-const fetchData = async () => {
-  try {
-    const selectedMarkInput = document.querySelector<HTMLInputElement>('input[name="questionType"]:checked');
-    const selectedMark = selectedMarkInput?.value;
-
-    const wordCountInput = document.getElementById(`${selectedMark?.replace(' ', '')}Count`) as HTMLSelectElement;
-    const questionCountInput = document.getElementById(`${selectedMark?.replace(' ', '')}Count`) as HTMLSelectElement;
-
-    console.log('Selected Mark:', selectedMark);
-    console.log('Word count input:', wordCountInput);
-    console.log('Question count input:', questionCountInput);
-
-    if (!selectedMark || !wordCountInput || !questionCountInput) {
-      console.error('One or more inputs are null.');
-      return;
+  const prompt = `
+  As a professor at a prestigious university renowned for its rigorous examination standards, you've been tasked with creating a set of challenging yet fair questions for the upcoming university exams. Your goal is to design questions that thoroughly test the students' understanding of the subject matter while also encouraging critical thinking and application of concepts. Utilize the provided text or data to generate a diverse range of questions spanning different topics and difficulty levels, ensuring that the exam adequately assesses the students' mastery of the course material. Your questions should be clear, concise, and structured in a way that facilitates effective evaluation of the students' knowledge and skills.
+  
+  Questions Details:
+  ${JSON.stringify(text)}  
+  
+  Feedback:
+1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
+2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
+3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
+4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.  
+  
+  Output Format (JSON):
+  [
+    {
+      "question_number": "question number",
+      "difficulty": "Medium",
+      "topic": "Theory",
+      "question_text": "Explain the concept of [specific concept] in [subject], providing examples to illustrate your understanding.",
+      "answer": "The concept of [specific concept] in [subject] refers to [explanation]. For instance, [example 1] and [example 2] demonstrate how [specific concept] is applied in real-world scenarios."
+    },
+  ]
+`;
+  const fetchData = async () => {
+    try {
+      const questionResponse = await llm_inference(prompt);
+      // Extract JSON data from the feedbackString
+      const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
+      const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
+      const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
+      // Parse the JSON data into an object
+      console.log(jsonData);
+      const feedbacks = JSON.parse(jsonData);
+      console.log(feedbacks);
+      setQuestions(feedbacks);
+    } catch (error) {
+      console.error('Error fetching resume feedback:', error);
     }
-
-    const wordCount = wordCountInput.value;
-    const questionCount = questionCountInput.value;
-
-    console.log('Word count:', wordCount);
-    console.log('Question count:', questionCount);
-
-    const prompt = generatePrompt(selectedMark, wordCount, questionCount);
-
-    const questionResponse = await llm_inference(prompt);
-    const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
-    const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
-    const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
-    // Parse the JSON data into an object
-    console.log(jsonData);
-    const feedbacks = JSON.parse(jsonData);
-    console.log(feedbacks);
-    setQuestions(feedbacks);
-  } catch (error) {
-    console.error('Error fetching resume feedback:', error);
-  }
-};
-
+  };
 
    function extractText(event: any) {
     const file = event.target.files[0];

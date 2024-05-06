@@ -7,7 +7,9 @@
  */
 import { llm_inference } from '@/app/llm/services/api';
 import { Button } from '@/components/ui/button';
+import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
+import pdfToText from 'react-pdftotext';
 
 export default function Hero() {
   const [text, setText] = useState('');
@@ -51,6 +53,15 @@ export default function Hero() {
       console.error('Error fetching resume feedback:', error);
     }
   };
+  function extractText(event: any) {
+    const file = event.target.files[0];
+    pdfToText(file)
+      .then((text: string) => {
+        console.log(text);
+        setText(text);
+      })
+      .catch((error: any) => console.error('Failed to extract text from pdf'));
+  }
   return (
     <div className="flex flex-col w-full min-h-screen">
       <main className="flex-1">
@@ -69,10 +80,15 @@ export default function Hero() {
             />
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <Button onClick={fetchData}>Generate</Button>
-              <Button variant="outline">Upload PDF</Button>
+              <Label htmlFor="pdf">Upload PDF</Label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={extractText}
+              />
             </div>
             <div className="grid w-full gap-4">
-              <h2 className="text-2xl font-semibold">Output</h2>
+              <h2 className="text-2xl font-semibold">Questions</h2>
               <div className="border border-dashed border-gray-200 w-full p-4 rounded-lg dark:border-gray-800" />
               {questions.map((question) => (
                 <div

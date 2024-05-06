@@ -1,13 +1,89 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
+import { llm_inference } from '@/app/llm/services/api';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import pdfToText from 'react-pdftotext';
 
 export default function teacher_first() {
   const [text, setText] = useState('');
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [selectedMark, setSelectedMark] = useState('');
+  const generatePrompt = (mark: any, wordCount: any, questionCount: any) => {
+    return `
+      As a professor at a prestigious university renowned for its rigorous examination standards, you've been tasked with creating a set of challenging yet fair questions for the upcoming university exams. Your goal is to design questions that thoroughly test the students' understanding of the subject matter while also encouraging critical thinking and application of concepts. Utilize the provided text or data to generate a diverse range of questions spanning different topics and difficulty levels, ensuring that the exam adequately assesses the students' mastery of the course material. Your questions should be clear, concise, and structured in a way that facilitates effective evaluation of the students' knowledge and skills.
+      
+      Questions Details:
+      ${JSON.stringify(text)}  
+      
+      Feedback:
+      1. **Format**: Ensure the answer follows a standard format with clear sections (e.g., Introduction, Body, Conclusion).
+      2. **Content**: Evaluate the content of the answer. Ensure it addresses the question thoroughly and provides relevant information.
+      3. **Grammar and Spelling**: Check for any grammatical errors or spelling mistakes and suggest corrections.
+      4. **Keywords**: Ensure the answer contains relevant keywords related to the topic to improve searchability.  
+      
+      Output Format (JSON):
+      [
+        ${[...Array(questionCount)]
+          .map(
+            (_, index) =>
+              `{
+            "question_number": "question ${index + 1}",
+            "difficulty": "Medium", // You can adjust difficulty as needed
+            "word_count": "${wordCount} words",
+            "mark": "${mark} mark",
+            "topic": "Theory", // You can adjust the topic as needed
+            "question_text": "Write a ${mark}-mark question that contains ${wordCount} words.",
+            "answer": "This is a sample answer."
+          }`,
+          )
+          .join(',')}
+      ]
+    `;
+  };
 
-  function extractText(event: any) {
+const fetchData = async () => {
+  try {
+    const selectedMarkInput = document.querySelector<HTMLInputElement>('input[name="questionType"]:checked');
+    const selectedMark = selectedMarkInput?.value;
+
+    const wordCountInput = document.getElementById(`${selectedMark?.replace(' ', '')}Count`) as HTMLSelectElement;
+    const questionCountInput = document.getElementById(`${selectedMark?.replace(' ', '')}Count`) as HTMLSelectElement;
+
+    console.log('Selected Mark:', selectedMark);
+    console.log('Word count input:', wordCountInput);
+    console.log('Question count input:', questionCountInput);
+
+    if (!selectedMark || !wordCountInput || !questionCountInput) {
+      console.error('One or more inputs are null.');
+      return;
+    }
+
+    const wordCount = wordCountInput.value;
+    const questionCount = questionCountInput.value;
+
+    console.log('Word count:', wordCount);
+    console.log('Question count:', questionCount);
+
+    const prompt = generatePrompt(selectedMark, wordCount, questionCount);
+
+    const questionResponse = await llm_inference(prompt);
+    const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
+    const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
+    const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
+    // Parse the JSON data into an object
+    console.log(jsonData);
+    const feedbacks = JSON.parse(jsonData);
+    console.log(feedbacks);
+    setQuestions(feedbacks);
+  } catch (error) {
+    console.error('Error fetching resume feedback:', error);
+  }
+};
+
+
+   function extractText(event: any) {
     const file = event.target.files[0];
     pdfToText(file)
       .then((text: string) => {
@@ -47,7 +123,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input id="fourMark" type="radio" value="4 mark" />
+            <input id="fourMark" type="radio" value="fourmark" />
             <Label htmlFor="fourMark">4 mark questions</Label>
             <select className="select w-full" id="fourMarkCount" name="count">
               <option value="">Count</option>
@@ -59,7 +135,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input id="sevenMark" type="radio" value="7 mark" />
+            <input id="sevenMark" type="radio" value="sevenmark" />
             <Label htmlFor="sevenMark">7 mark questions</Label>
             <select className="select w-full" id="sevenMarkCount" name="count">
               <option value="">Count</option>
@@ -71,7 +147,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input id="tenMark" type="radio" value="10 mark" />
+            <input id="tenMark" type="radio" value="tenmark" />
             <Label htmlFor="tenMark">10 mark questions</Label>
             <select className="select w-full" id="tenMarkCount" name="count">
               <option value="">Count</option>
@@ -83,7 +159,7 @@ export default function teacher_first() {
             </select>
           </div>
           <div className="flex items-center space-x-4 w-full">
-            <input id="fourteenMark" type="radio" value="14 mark" />
+            <input id="fourteenMark" type="radio" value="fourteenmark" />
             <Label htmlFor="fourteenMark">14 mark questions</Label>
             <select
               className="select w-full"
@@ -98,13 +174,16 @@ export default function teacher_first() {
               ))}
             </select>
           </div>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={fetchData}
+          >
             Generate
           </button>
-          <div key="1" className="flex flex-cols items-center justify-center  ">
+          <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
               <div className="flex flex-col mt-1 space-y-2 w-full max-w-md">
-                {[...Array(5)].map((_, index) => (
+                {questions.map((question, index) => (
                   <div
                     key={index}
                     className="flex items-center space-x-4 w-full"
@@ -116,6 +195,7 @@ export default function teacher_first() {
                       id={`question${index + 1}`}
                       className="w-full h-20 p-2 border rounded"
                       placeholder={`Question ${index + 1} will appear here`}
+                      defaultValue={question.question_text} // Populate the textarea with question text
                     ></textarea>
                     <input id={`selectQuestion${index + 1}`} type="checkbox" />
                     <Label htmlFor={`selectQuestion${index + 1}`}>Select</Label>

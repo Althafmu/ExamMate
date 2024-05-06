@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import { NextRouter } from 'next/router';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-
-
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(1, { message: 'Password is required' }),
@@ -40,9 +38,6 @@ const Login = (props: Props) => {
     try {
       await signUpUser(data).then(() => {
         toast.success('Login successfull');
-        const searchParams = new URLSearchParams(window.location.search);
-        const redirectUrl = searchParams.get('redirect');
-        props.router.push(redirectUrl || '/');
       });
     } catch (error) {
       setError('root', {
@@ -67,6 +62,22 @@ const Login = (props: Props) => {
       });
       throw error;
     } else if (data) {
+      let { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+
+        // Filters
+        .eq('id', data?.user?.id)
+        .single();
+      if (error) {
+        console.log(error);
+      } else if (users) {
+        if (users.role === 'student') {
+          props.router.push('/studentPage');
+        } else {
+          props.router.push('/teacherPage');
+        }
+      }
       return data;
     }
   };

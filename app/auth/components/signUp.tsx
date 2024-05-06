@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { supabase } from '@/utils/supabase';
 import { toast } from 'sonner';
-import { NextRouter } from 'next/router';
+import { useRouter } from 'next/navigation'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { z } from 'zod';
 
@@ -41,14 +41,14 @@ const SignUp = (props: Props) => {
   } = useForm<FormFields>({
     defaultValues: {}
   });
-
+  const router = useRouter()
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       await signUpUser(data).then(() => {
         toast.success('Signup successfull');
         const searchParams = new URLSearchParams(window.location.search);
         const redirectUrl = searchParams.get('redirect');
-        props.router.push(redirectUrl || '/');
+        props.router.push(redirectUrl || '/signupLink');
       });
     } catch (error) {
       setError('root', {
@@ -73,6 +73,7 @@ const SignUp = (props: Props) => {
       throw error;
     } else if (data) {
       return data;
+
     }
   };
 

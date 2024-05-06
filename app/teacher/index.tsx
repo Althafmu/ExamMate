@@ -1,10 +1,9 @@
-
-import Teacher_first from '@/components/teacher_first';
+import pdfToText from 'react-pdftotext';
 
 const page = () => {
   return (
     <div>
-      <Teacher_first />
+      test
     </div>
   );
 };

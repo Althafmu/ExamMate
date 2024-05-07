@@ -4,6 +4,7 @@
 import { llm_inference } from '@/app/llm/services/api';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/utils/supabase';
+import { ExamType, QuestionTypeGenerated, UserType } from '@/utils/type';
 import { User, UserResponse } from '@supabase/supabase-js';
 import { title } from 'process';
 import { use, useCallback, useEffect, useMemo, useState } from 'react';
@@ -61,7 +62,7 @@ export default function teacher_first() {
       toast.error('Please generate questions first')
       return
     }
-    const questionsFiltered: QuestionType[] = questions.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
+    const questionsFiltered: QuestionTypeGenerated[] = questions.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
     if (questionsFiltered.length <= 0) {
       toast.error('Please select atleast one question')
       return
@@ -284,30 +285,7 @@ export default function teacher_first() {
   );
 }
 
-type QuestionType = {
-  answer: string
-  difficulty: string
-  question_number: string | number
-  question_text: string
-  topic: string
-}
 
-type UserType = {
-  id: string
-  role: string
-  name: string
-  institution: string
-  institution_id: string
-  email: string
-  created_at: string
-}
-type ExamType = {
-  id: string
-  title: string
-  code: string
-  created_at: string
-  teacher_id: string
-}
 
 function getPrompt(text: string | undefined) {
   return `

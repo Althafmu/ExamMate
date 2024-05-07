@@ -37,8 +37,8 @@ export default function teacher_first() {
 `;
   const fetchData = async () => {
     try {
-      // const questionResponse = await llm_inference(prompt);
-      const questionResponse = localStorage.getItem('json') || ''
+      const questionResponse = await llm_inference(prompt);
+      // const questionResponse = localStorage.getItem('json') || ''
       // Extract JSON data from the feedbackString
       const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
       const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'

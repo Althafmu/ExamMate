@@ -32,7 +32,7 @@ export default function studentAppear() {
   const code = params.get("code")
   const userRole = useMemo(() => user?.role, [user])
   const userId = useMemo(() => user?.id, [user])
-  const [students, setStudents] = useState<{ name: string, id: string }[]>()
+  const [students, setStudents] = useState<{ name: string, examId: string }[]>()
   useEffect(() => {
     if (!user) getUserData().then(setUser)
   }, [])
@@ -56,27 +56,27 @@ export default function studentAppear() {
     return userData
   }, [])
   const getStudents = useCallback(async () => {
-    const { data, error } = await supabase.from('student_exam_link').select('id,student_id,users(name)').eq('exam_code', code)
+    const { data, error } = await supabase.from('student_exam_link').select('id,student_id,exam_code,users(name)').eq('exam_code', code)
     if (error) {
       console.error(error)
       return
     }
     const datas = data as any
-    return datas.map((item: any) => ({ name: item.users.name, id: item.id }))
+    return datas.map((item: any) => ({ name: item.users.name, examId: item.id }))
   }, [])
   return (
     <main key="1" className="container mx-auto py-6 px-2 md:px-4 lg:px-6">
       <h1 className="text-3xl font-bold mb-4 text-center">Students Appear</h1>
       <div className="grid gap-4">
         {students?.map((student, index) => (
-          <div key={student.id} className="bg-white rounded-lg shadow-md p-4 flex items-center justify-between">
+          <div key={student.examId} className="bg-white rounded-lg shadow-md p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="text-gray-500 font-medium">{index + 1}.</span>
               <div>
                 <h2 className="text-lg font-medium">{student.name}</h2>
               </div>
             </div>
-            <Link className="text-gray-500 hover:text-gray-900 transition-colors" href={`/calculationn?id=${student.id}`}>
+            <Link className="text-gray-500 hover:text-gray-900 transition-colors" href={`/calculationn?id=${student.examId}`}>
               <ChevronRightIcon className="h-6 w-6" />
               <span className="sr-only">Next Student</span>
             </Link>

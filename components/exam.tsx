@@ -71,8 +71,10 @@ export default function exam() {
       return
     }
     const answers = questions?.map(question => ({
+      question: question.question,
       question_id: question.id,
-      answer: e.target[question.id].value as string
+      answer: e.target[question.id].value as string,
+      marks: 0
     })) || []
     if (answers.length <= 0) {
       toast.error('Please answer atleast one questions')

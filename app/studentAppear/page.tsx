@@ -1,9 +1,10 @@
+import Navbar from "@/components/navbarts"
 import StudentAppear from "@/components/student-appear"
 
 
 const page = () => {
   return (
-    <div><StudentAppear/></div>
+    <div><Navbar/><StudentAppear/></div>
   )
 }
 

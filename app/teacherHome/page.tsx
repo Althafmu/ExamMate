@@ -1,9 +1,10 @@
+import Navbar from "@/components/navbarts"
 import TeacherHome from "@/components/teacher-home"
 
 
 const page = () => {
   return (
-    <div><TeacherHome/></div>
+    <div><Navbar/><TeacherHome/></div>
   )
 }
 

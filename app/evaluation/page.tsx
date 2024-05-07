@@ -1,9 +1,10 @@
 import Evaluation from "@/components/evaluation"
+import Navbar from "@/components/navbarts"
 
 
 const page = () => {
   return (
-    <div><Evaluation/></div>
+    <div><Navbar/><Evaluation/></div>
   )
 }
 

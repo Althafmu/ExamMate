@@ -75,7 +75,7 @@ const Login = (props: Props) => {
         if (users.role === 'student') {
           props.router.push('/studentPage');
         } else {
-          props.router.push('/teacherPage');
+          props.router.push('/teacherHome');
         }
       }
       return data;

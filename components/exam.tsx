@@ -29,21 +29,70 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { useParams, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { supabase } from "@/utils/supabase"
 import { toast } from "sonner"
-import { QuestionTypeExam } from "@/utils/type"
+import { QuestionTypeExam, StudentExamLinkType, UserType } from "@/utils/type"
+import { User, UserResponse } from "@supabase/supabase-js"
 
 export default function exam() {
+  const [user, setUser] = useState<UserType>()
   const params = useSearchParams()
   const code = params.get("code")
   const [questions, setQuestions] = useState<QuestionTypeExam[]>()
+  const userRole = useMemo(() => user?.role, [user])
+  const userId = useMemo(() => user?.id, [user])
   useEffect(() => {
     if (code) {
-      console.log(code)
       getQuestions(code).then(setQuestions)
     }
   }, [code])
+  useEffect(() => {
+    if (!user) getUserData().then(setUser)
+  }, [])
+  const getUserData = useCallback(async (): Promise<UserType | undefined> => {
+    const { data: { user }, error: detailError } = await supabase.auth.getUser() || {} as UserResponse
+    if (detailError) {
+      console.error(detailError)
+      return
+    }
+    const { id: userId } = user ?? {} as User
+    const { data: userData, error } = await supabase.from('users').select('*').eq('id', userId).single()
+    if (error) {
+      console.error(error)
+      return
+    }
+    return userData
+  }, [])
+  const onSubmit = (e: any) => {
+    e.preventDefault()
+    if (userRole !== 'student') {
+      toast.error('Only students can take the exam')
+      return
+    }
+    const answers = questions?.map(question => ({
+      question_id: question.id,
+      answer: e.target[question.id].value as string
+    })) || []
+    if (answers.length <= 0) {
+      toast.error('Please answer atleast one questions')
+      return
+    }
+    if (!userId) {
+      toast.error('Please login first')
+      return
+    }
+    if (!code) {
+      toast.error('Exam code not found')
+      return
+    }
+    const payload: StudentExamLinkType = {
+      student_id: userId,
+      exam_code: code,
+      answers
+    }
+    submitAnswers(payload)
+  }
   return (
     <div className="mx-auto max-w-4xl px-4 flex flex-col space-y-4">
       <div className="space-y-2 text-center">
@@ -69,7 +118,7 @@ export default function exam() {
             </div>
           </div>
         </div>
-        <div className="space-y-4">
+        <form className="space-y-4" onSubmit={onSubmit}>
           <div className="border border-gray-200 rounded-lg dark:border-gray-800">
             {questions?.map((question) => (
               <div key={question.id} className="p-4 border-b border-gray-200 last:border-0 dark:border-gray-800">
@@ -84,8 +133,7 @@ export default function exam() {
                         </Label>
                         <Textarea
                           className="min-h-[100px] peer-disabled:pointer-events-none peer-disabled:bg-transparent peer-disabled:opacity-100"
-                          disabled
-                          id="question-1"
+                          id={question.id}
                           placeholder="Enter your answer"
                         />
                       </div>
@@ -100,7 +148,7 @@ export default function exam() {
               Submit
             </Button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )
@@ -117,5 +165,12 @@ async function getQuestions(code: string): Promise<QuestionTypeExam[] | undefine
   if (Array.isArray(questions)) {
     return questions as QuestionTypeExam[]
   }
+}
+
+async function submitAnswers(data: StudentExamLinkType) {
+  const { status, error } = await supabase.from('student_exam_link').upsert(data)
+  if (error) toast.error(error.message)
+  if (status !== 201) toast.error('Something went wrong')
+  if (status === 201) toast.success('Answers submitted successfully')
 }
 

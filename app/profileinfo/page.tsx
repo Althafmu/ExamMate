@@ -1,9 +1,10 @@
+import Navbar from "@/components/navbarts"
 import ProfileInfo from "@/components/profile_info"
 
 
 const page = () => {
   return (
-    <div><ProfileInfo/></div>
+    <div><Navbar/><ProfileInfo/></div>
   )
 }
 

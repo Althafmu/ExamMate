@@ -3,8 +3,11 @@
 
 import { llm_inference } from '@/app/llm/services/api';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/utils/supabase';
+import { User, UserResponse } from '@supabase/supabase-js';
 import { useState } from 'react';
 import pdfToText from 'react-pdftotext';
+import { toast } from 'sonner';
 
 export default function teacher_first() {
   const [text, setText] = useState('');
@@ -34,22 +37,51 @@ export default function teacher_first() {
 `;
   const fetchData = async () => {
     try {
-      const questionResponse = await llm_inference(prompt);
+      // const questionResponse = await llm_inference(prompt);
+      const questionResponse = localStorage.getItem('json') || ''
       // Extract JSON data from the feedbackString
       const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
       const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
       const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
       // Parse the JSON data into an object
-      console.log(jsonData);
+      // localStorage.setItem('json', jsonData)
       const feedbacks = JSON.parse(jsonData);
-      console.log(feedbacks);
       setQuestions(feedbacks);
     } catch (error) {
       console.error('Error fetching resume feedback:', error);
     }
   };
-
-   function extractText(event: any) {
+  async function onSubmit(event: any) {
+    let role
+    event.preventDefault();
+    if (questions.length <= 0) {
+      toast.error('Please generate questions first')
+      return
+    }
+    const questionsFiltered: QuestionType[] = questions.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
+    if (questionsFiltered.length <= 0) {
+      toast.error('Please select atleast one question')
+      return
+    }
+    const { data: { user }, error: detailError } = await supabase.auth.getUser() || {} as UserResponse
+    if (detailError) {
+      toast.error(detailError?.message)
+      return
+    }
+    const { id: userId } = user ?? {} as User
+    const { data: userData, error } = await supabase.from('users').select('*').eq('id', userId).single()
+    if (error) toast.error(error?.message)
+    if (userData) role = userData?.role
+    if (role !== 'teacher') {
+      toast.error('Only teachers can generate questions')
+      return
+    }
+    const examId = undefined
+    const payload = questionsFiltered.map(question => ({ question: question.question_text, answer: question.answer, teacher_id: userId, exam_id: examId }))
+    const { status } = await supabase.from('questions').insert(payload)
+    console.log(status)
+  }
+  function extractText(event: any) {
     const file = event.target.files[0];
     pdfToText(file)
       .then((text: string) => {
@@ -148,15 +180,14 @@ export default function teacher_first() {
           </button>
           <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
-              <div className="flex flex-col mt-1 space-y-2 w-full max-w-md">
+              <form className="flex flex-col mt-1 space-y-2 w-full max-w-md" onSubmit={onSubmit}>
                 {questions.map((question, index) => (
                   <div
                     key={index}
                     className="flex items-center space-x-4 w-full"
                   >
-                    <Label htmlFor={`question${index + 1}`}>{`Question ${
-                      index + 1
-                    }`}</Label>
+                    <Label htmlFor={`question${index + 1}`}>{`Question ${index + 1
+                      }`}</Label>
                     <textarea
                       id={`question${index + 1}`}
                       className="w-full h-20 p-2 border rounded"
@@ -167,14 +198,22 @@ export default function teacher_first() {
                     <Label htmlFor={`selectQuestion${index + 1}`}>Select</Label>
                   </div>
                 ))}
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit" >
                   Submit
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+type QuestionType = {
+  answer: string
+  difficulty: string
+  question_number: string | number
+  question_text: string
+  topic: string
 }

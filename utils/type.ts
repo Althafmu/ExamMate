@@ -5,6 +5,16 @@ export type QuestionTypeGenerated = {
     question_text: string
     topic: string
 }
+export type StudentExamLinkType = {
+    student_id: string
+    exam_code: string
+    answers: {
+        question: string
+        question_id: string
+        answer: string
+        marks: number
+    }[]
+}
 export type QuestionTypeExam = {
     id: string
     teacher_id: string
@@ -26,4 +36,11 @@ export type ExamType = {
     code: string
     created_at?: string
     teacher_id: string
+}
+
+export type AnswerType = {
+    question: string
+    question_id: string
+    answer: string
+    marks: number
 }

@@ -13,22 +13,27 @@ import { toast } from "sonner"
 
 export default function Component() {
   const [exams, setExams] = useState<ExamType[]>()
+
   useEffect(() => {
-    if (!exams)
+    if (!exams) {
       getExams().then(setExams)
+    }
   }, [])
+
   return (
-    <div key="1" className="px-4 py-6 md:px-6 md:py-12">
+    <div className="px-4 py-6 md:px-6 md:py-12">
       <div className="space-y-4">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl text-center">Examate</h1>
-        <div className="flex justify-start mt-12">
+        <div className="flex flex-wrap justify-start mt-12">
           {exams?.map((exam) => (
-            <div className="ml-20 mt-10" key={exam.id}>
-              <p className="text-gray-500 dark:text-gray-400">Exam: {exam.title}</p>
-              <div className="mt-4">
-                <Link href={`/exam?code=${exam.code}`}>
-                  <Button>Open</Button>
-                </Link>
+            <div key={exam.id} className="w-1/5 p-4">
+              <div className="bg-white shadow-md rounded-lg p-6">
+                <p className="text-gray-500 dark:text-gray-400">Exam: {exam.title}</p>
+                <div className="mt-4">
+                  <Link href={`/exam?code=${exam.code}`}>
+                    <Button>Open</Button>
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
@@ -38,12 +43,11 @@ export default function Component() {
   )
 }
 
-async function getExams(): Promise<ExamType[] | undefined> {
+async function getExams(): Promise<ExamType[]> {
   const { data, error } = await supabase.from('exams').select('*')
   if (error) {
     toast.error(error.message)
-    return
+    return []
   }
   return data
 }
-

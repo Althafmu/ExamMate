@@ -96,6 +96,20 @@ export default function exam() {
     }
     submitAnswers(payload)
   }
+  const calculateTotalMark = () => {
+    let total = 0;
+    questions?.forEach(question => {
+      const mark = parseInt((document.getElementById(question.question_id) as HTMLInputElement)?.value || '0');
+      total += mark;
+    });
+    return total;
+  }
+
+  const handleCalculateTotal = () => {
+    const totalMark = calculateTotalMark();
+    setTotalMark(totalMark); // Set the total mark in state
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 flex flex-col space-y-4">
       <div className="space-y-2 text-center">
@@ -126,7 +140,7 @@ export default function exam() {
             {questions?.map((question) => (
               <div key={question.id} className="p-4 border-b border-gray-200 last:border-0 dark:border-gray-800">
                 <div className="grid items-center gap-4 md:grid-cols-3">
-                  <h3 className="text-base font-light ">1. {question.question}</h3>
+                  <h3 className="text-base font-light ">1. {question.question}? ({question.marks}) </h3>
                   <div className="space-y-2 md:col-start-2 md:col-end-4">
                     <details>
                       <summary className="text-sm font-medium cursor-pointer">Add your answer</summary>

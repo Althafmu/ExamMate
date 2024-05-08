@@ -29,19 +29,23 @@ export default function teacher_first() {
     if (userId && !teacherExams) {
       getTeacherExams(userId).then(data => {
         setTeacherExams(data)
-        if (data && data.length >= 1) setExamCode(data[0].code)
       })
     }
-  }, [userId])
+  }, [userId, exam])
+  useEffect(() => {
+    if (teacherExams && teacherExams.length >= 1 && exam === 'add') setExamCode(teacherExams[0].code)
+    else if (exam === 'create') setExamCode(undefined)
+  }, [exam])
 
   const fetchData = async () => {
+    let toastId
+
     try {
       if (!text) {
         toast.error('Please upload a file first')
         return
       }
-      const toastId = toast('Sonner');
-      toast.loading('Generating questions', { id: toastId });
+      toastId = toast.loading('Generating questions');
       const questionResponse = await llm_inference(prompt);
       toast.dismiss(toastId);
       toast.success('Questions generated successfully')
@@ -53,6 +57,7 @@ export default function teacher_first() {
       const feedbacks = JSON.parse(jsonData);
       setQuestions(feedbacks);
     } catch (error) {
+      toast.dismiss(toastId);
       console.error('Error fetching resume feedback:', error);
     }
   };
@@ -62,7 +67,16 @@ export default function teacher_first() {
       toast.error('Please generate questions first')
       return
     }
-    const questionsFiltered: QuestionTypeGenerated[] = questions.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
+    // const questionSet = questions.map((question: any, index) => ({ ...question, marks: event.target[`marks${index + 1}`].value }))
+    // const questionsFiltered: QuestionTypeGenerated[] = questionSet.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
+    const questionsFiltered = questions.reduce((acc: QuestionTypeGenerated[], question: any, index) => {
+      const marks = event.target[`marks${index + 1}`].value
+      if (event.target[`selectQuestion${index + 1}`].checked) {
+        acc.push({ ...question, marks })
+      }
+      return acc
+    }, [])
+
     if (questionsFiltered.length <= 0) {
       toast.error('Please select atleast one question')
       return
@@ -76,7 +90,7 @@ export default function teacher_first() {
       return
     }
     let examData
-    const examGenerateQuery = supabase.from('exams').insert({ teacher_id: userId, code: examCode, title: examTitle }).select('id')
+    const examGenerateQuery = supabase.from('exams').insert({ teacher_id: userId, code: examCode, title: examTitle, status: 'ready' }).select('id')
     if (exam === 'create') {
       const res = await examGenerateQuery.single()
       examData = res.data
@@ -98,7 +112,7 @@ export default function teacher_first() {
       }
     }
     const examId = examData?.id
-    const payload = questionsFiltered.map(question => ({ question: question.question_text, answer: question.answer, teacher_id: userId, exam_id: examId }))
+    const payload = questionsFiltered.map(question => ({ question: question.question_text, answer: question.answer, teacher_id: userId, exam_id: examId, marks: question.marks }))
     const { status, error: questionError } = await supabase.from('questions').insert(payload)
     if (questionError) {
       toast.error(questionError?.message)
@@ -242,8 +256,8 @@ export default function teacher_first() {
             <div className='flex justify-center gap-3 my-2' style={{ flexDirection: exam === 'create' ? 'column' : 'row' }}>
               <h3 className='text-center my-2 font-bold '>{exam === 'create' ? 'Create New Exam' : 'Add to Existing Exam'}</h3>
               {exam === 'create' && <div className="flex gap-2 justify-center">
-                <input className=' border py-1 px-4 rounded-lg' type='text' id='title' value={examTitle} onChange={e => setExamTitle(e.target.value)} placeholder='Exam title' />
-                <input className=' border py-1 px-4 rounded-lg' type='text' id='code' value={examCode} onChange={e => setExamCode(e.target.value)} placeholder='Exam code' />
+                <input className=' border py-1 px-4 rounded-lg' type='text' id='title' value={examTitle ?? ''} onChange={e => setExamTitle(e.target.value)} placeholder='Exam title' />
+                <input className=' border py-1 px-4 rounded-lg' type='text' id='code' value={examCode ?? ''} onChange={e => setExamCode(e.target.value)} placeholder='Exam code' />
               </div>}
               {exam === 'add' && <select className=' border py-1 px-2 rounded-lg' onChange={e => setExamCode(e.target.value)}>
                 {teacherExams?.map((exam, index) => (
@@ -271,6 +285,7 @@ export default function teacher_first() {
                     ></textarea>
                     <input id={`selectQuestion${index + 1}`} type="checkbox" />
                     <Label htmlFor={`selectQuestion${index + 1}`}>Select</Label>
+                    <input id={`marks${index + 1}`} type="number" className='w-10 border rounded-lg' defaultValue={4} />
                   </div>
                 ))}
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit" >

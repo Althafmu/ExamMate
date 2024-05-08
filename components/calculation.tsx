@@ -12,6 +12,7 @@ export default function calculation() {
   const examId = params.get('id')
   const [user, setUser] = useState<UserType>()
   const [questions, setQuestions] = useState<AnswerType[]>()
+  const [totalMark, setTotalMark] = useState<number>(0); // State to store total mark
 
   useEffect(() => {
     if (!user) getUserData().then(setUser)
@@ -66,6 +67,21 @@ export default function calculation() {
     if (updated) submitAnswers(answers, examId as string)
     else toast.error('No changes made')
   }
+
+  const calculateTotalMark = () => {
+    let total = 0;
+    questions?.forEach(question => {
+      const mark = parseInt((document.getElementById(question.question_id) as HTMLInputElement)?.value || '0');
+      total += mark;
+    });
+    return total;
+  }
+  
+  const handleCalculateTotal = () => {
+    const totalMark = calculateTotalMark();
+    setTotalMark(totalMark); // Set the total mark in state
+  }
+
   return (
     <main className="container mx-auto px-4 py-12 md:px-6 lg:py-16">
       <div className="mx-auto max-w-3xl space-y-6">
@@ -73,18 +89,35 @@ export default function calculation() {
         <form className="space-y-4" onSubmit={onSubmit}>
           {questions?.map((question, index) => (
             <div key={question.question_id} className="grid grid-cols-[auto_1fr] items-center gap-4">
-              <span className="font-medium">{index + 1}. {question.question}?</span>
+              <div>
+                <span className="font-medium">{index + 1}. {question.question}?</span>
+              </div>
               <div className="flex items-center gap-2">
-                <span>Answer: {question.answer}</span>
+                <span>Mark:</span>
                 <Input
                   className="w-20 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-primary"
                   placeholder="mark"
                   type="number"
                   id={question.question_id}
                   defaultValue={question.marks}
+                  data-mark={question.marks} // Added data-mark attribute
                 />
               </div>
-            </div>))}
+              <div>
+                <span className="font-medium">Answer:</span>
+                <span className="text-gray-500">{question.answer}</span>
+              </div>
+            </div>
+          ))}
+          <div>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4" type="button"  onClick={handleCalculateTotal}>
+              Calculate Total
+            </button>
+            <div className="flex items-center gap-2">
+              <span>Total Mark:</span>
+              <span>{totalMark}</span>
+            </div>
+          </div>
           <div className="flex justify-center">
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4">
               Download

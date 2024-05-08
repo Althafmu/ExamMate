@@ -97,23 +97,19 @@ export default function profile_info() {
   );
 }
 const Marks = ({ exam }: { exam: StudentMarksType }) => {
-  const total = useMemo(() => 100, [exam]);
   const totalMarks = useMemo(
     () => exam.answers.reduce((a, b) => a + parseInt(b.marks), 0),
     [exam],
-  );
-  const percentage = useMemo(
-    () => (totalMarks / total) * 100,
-    [total, totalMarks],
   );
   return (
     <>
       <div>{exam.exams.title}</div>
       <div className="text-center"></div>
-      <div className="text-right">{percentage}%</div>
+      <div className="text-right">{totalMarks}</div>
     </>
   );
 };
+
 async function getStudentMarks(
   userId: string,
 ): Promise<StudentMarksType[] | undefined> {

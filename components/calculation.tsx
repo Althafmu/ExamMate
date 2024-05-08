@@ -76,7 +76,7 @@ export default function calculation() {
     });
     return total;
   }
-  
+
   const handleCalculateTotal = () => {
     const totalMark = calculateTotalMark();
     setTotalMark(totalMark); // Set the total mark in state
@@ -90,13 +90,14 @@ export default function calculation() {
           {questions?.map((question, index) => (
             <div key={question.question_id} className="grid grid-cols-[auto_1fr] items-center gap-4">
               <div>
-                <span className="font-medium">{index + 1}. {question.question}?</span>
+                <span className="font-medium">{index + 1}. {question.question}? ({question.totalMark})</span>
               </div>
               <div className="flex items-center gap-2">
                 <span>Mark:</span>
                 <Input
                   className="w-20 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-primary"
                   placeholder="mark"
+                  max={question.totalMark}
                   type="number"
                   id={question.question_id}
                   defaultValue={question.marks}
@@ -110,7 +111,7 @@ export default function calculation() {
             </div>
           ))}
           <div>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4" type="button"  onClick={handleCalculateTotal}>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4" type="button" onClick={handleCalculateTotal}>
               Calculate Total
             </button>
             <div className="flex items-center gap-2">

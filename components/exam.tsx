@@ -74,7 +74,8 @@ export default function exam() {
       question: question.question,
       question_id: question.id,
       answer: e.target[question.id].value as string,
-      marks: 0
+      marks: 0,
+      totalMark: question.marks
     })) || []
     if (answers.length <= 0) {
       toast.error('Please answer atleast one questions')
@@ -158,7 +159,7 @@ export default function exam() {
 
 
 async function getQuestions(code: string): Promise<QuestionTypeExam[] | undefined> {
-  const { data, error } = await supabase.from('exams').select('questions(question,answer,teacher_id,id)').eq('code', code).single()
+  const { data, error } = await supabase.from('exams').select('questions(question,answer,teacher_id,id,marks)').eq('code', code).single()
   if (error) {
     toast.error(error.message)
     return

@@ -104,7 +104,7 @@ const Marks = ({ exam }: { exam: StudentMarksType }) => {
   return (
     <>
       <div>{exam.exams.title}</div>
-      <div className="text-center"></div>
+      <div className="text-center">{exam.exams.date}</div>
       <div className="text-right">{totalMarks}</div>
     </>
   );
@@ -115,7 +115,7 @@ async function getStudentMarks(
 ): Promise<StudentMarksType[] | undefined> {
   const { data, error } = await supabase
     .from('student_exam_link')
-    .select('id,answers,exams(id,code,title)')
+    .select('id,answers,exams(id,code,title,date)')
     .eq('student_id', userId);
   if (error) {
     toast.error(error.message);

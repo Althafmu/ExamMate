@@ -21,6 +21,7 @@ export type QuestionTypeExam = {
     teacher_id: string
     exam_id: string
     question: string
+    marks: number
 }
 export type UserType = {
     id: string
@@ -35,6 +36,7 @@ export type ExamType = {
     id: string
     title: string
     code: string
+    date: string
     created_at?: string
     teacher_id?: string
 }
@@ -44,6 +46,7 @@ export type AnswerType = {
     question_id: string
     answer: string
     marks: string
+    totalMark: number
 }
 // [
 //     {

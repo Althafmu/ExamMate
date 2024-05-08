@@ -34,6 +34,7 @@ import { supabase } from "@/utils/supabase"
 import { toast } from "sonner"
 import { QuestionTypeExam, StudentExamLinkType, UserType } from "@/utils/type"
 import { User, UserResponse } from "@supabase/supabase-js"
+import Link from "next/link"
 
 export default function exam() {
   const [user, setUser] = useState<UserType>()
@@ -161,9 +162,11 @@ export default function exam() {
             ))}
           </div>
           <div className="flex justify-center">
-            <Button size="lg" variant="outline">
-              Submit
-            </Button>
+          <Link href="/studentPage">
+  <Button size="lg" variant="outline">
+    Submit
+  </Button>
+</Link>
           </div>
         </form>
       </div>

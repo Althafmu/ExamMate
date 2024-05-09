@@ -6,20 +6,35 @@
  */
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/utils/supabase"
-import { ExamType } from "@/utils/type"
+import { ExamType, UserType } from "@/utils/type"
+import { User, UserResponse } from "@supabase/supabase-js"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 export default function Component() {
+  const [allExams, setAllExams] = useState<ExamType[]>()
   const [exams, setExams] = useState<ExamType[]>()
-
+  const [user, setUser] = useState<UserType>()
+  useEffect(() => {
+    if (!user) getUserData().then(setUser)
+  }, [])
+  const userRole = useMemo(() => user?.role, [user])
+  const userId = useMemo(() => user?.id, [user])
   useEffect(() => {
     if (!exams) {
-      getExams().then(setExams)
+      getExams().then(setAllExams)
     }
   }, [])
-
+  useEffect(() => {
+    if (userId && userRole === 'student' && allExams) {
+      getStudentExams(userId).then(data => {
+        console.log(data)
+        const result = allExams.filter(allExam => data?.findIndex(exam => allExam.code === exam.exam_code) === -1)
+        setExams(result)
+      })
+    }
+  }, [userId, allExams, userRole])
   return (
     <div className="px-4 py-6 md:px-6 md:py-12">
       <div className="space-y-4">
@@ -51,4 +66,27 @@ async function getExams(): Promise<ExamType[]> {
     return []
   }
   return data
+}
+async function getStudentExams(studentId: string): Promise<any[]> {
+  const { data, error } = await supabase.from('student_exam_link').select('exam_code').eq('student_id', studentId)
+  if (error) {
+    toast.error(error.message)
+    return []
+  }
+  return data
+}
+
+export const getUserData = async (): Promise<UserType | undefined> => {
+  const { data: { user }, error: detailError } = await supabase.auth.getUser() || {} as UserResponse
+  if (detailError) {
+    console.error(detailError)
+    return
+  }
+  const { id: userId } = user ?? {} as User
+  const { data: userData, error } = await supabase.from('users').select('*').eq('id', userId).single()
+  if (error) {
+    console.error(error)
+    return
+  }
+  return userData
 }

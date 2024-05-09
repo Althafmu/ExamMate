@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
 import pdfToText from 'react-pdftotext';
+import { toast } from 'sonner';
 
 export default function Hero() {
   const [text, setText] = useState('');
@@ -37,22 +38,30 @@ export default function Hero() {
     },
   ]
 `;
-  const fetchData = async () => {
-    try {
-      const questionResponse = await llm_inference(prompt);
-      // Extract JSON data from the feedbackString
-      const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
-      const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
-      const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
-      // Parse the JSON data into an object
-      console.log(jsonData);
-      const feedbacks = JSON.parse(jsonData);
-      console.log(feedbacks);
-      setQuestions(feedbacks);
-    } catch (error) {
-      console.error('Error fetching resume feedback:', error);
+const fetchData = async () => {
+  let toastId
+
+  try {
+    if (!text) {
+      toast.error('Please upload a file first')
+      return
     }
-  };
+    toastId = toast.loading('Generating questions');
+    const questionResponse = await llm_inference(prompt);
+    toast.dismiss(toastId);
+    toast.success('Questions generated successfully')
+    // Extract JSON data from the feedbackString
+    const startIndex = questionResponse.indexOf('['); // Find the index of the first '{'
+    const endIndex = questionResponse.lastIndexOf(']'); // Find the index of the last '}'
+    const jsonData = questionResponse.substring(startIndex, endIndex + 1); // Extract the JSON data
+    // Parse the JSON data into an object
+    const feedbacks = JSON.parse(jsonData);
+    setQuestions(feedbacks);
+  } catch (error) {
+    toast.dismiss(toastId);
+    console.error('Error fetching question feedback:', error);
+  }
+};
   function extractText(event: any) {
     const file = event.target.files[0];
     pdfToText(file)

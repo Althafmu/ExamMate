@@ -14,11 +14,13 @@ import { toast } from 'sonner';
 export default function teacher_first() {
   const [text, setText] = useState<string>();
   const [questions, setQuestions] = useState<any[]>([]);
+  const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [exam, setExam] = useState<'create' | 'add'>('create')
   const [examTitle, setExamTitle] = useState<string>();
   const [examCode, setExamCode] = useState<string>();
   const [user, setUser] = useState<UserType>()
   const [teacherExams, setTeacherExams] = useState<ExamType[]>()
+
   useEffect(() => {
     if (!user) getUserData().then(setUser)
   }, [])
@@ -63,13 +65,13 @@ export default function teacher_first() {
   };
   async function onSubmit(event: any) {
     event.preventDefault();
-    if (questions.length <= 0) {
-      toast.error('Please generate questions first')
+    if (previewQuestions.length <= 0) {
+      toast.error('Please add questions first')
       return
     }
     // const questionSet = questions.map((question: any, index) => ({ ...question, marks: event.target[`marks${index + 1}`].value }))
     // const questionsFiltered: QuestionTypeGenerated[] = questionSet.filter((_: any, index: number) => event.target[`selectQuestion${index + 1}`].checked)
-    const questionsFiltered = questions.reduce((acc: QuestionTypeGenerated[], question: any, index) => {
+    const questionsFiltered = previewQuestions.reduce((acc: QuestionTypeGenerated[], question: any, index) => {
       const marks = event.target[`marks${index + 1}`].value
       if (event.target[`selectQuestion${index + 1}`].checked) {
         acc.push({ ...question, marks })
@@ -92,6 +94,14 @@ export default function teacher_first() {
     let examData
     const examGenerateQuery = supabase.from('exams').insert({ teacher_id: userId, code: examCode, title: examTitle, status: 'ready' }).select('id')
     if (exam === 'create') {
+      if (!examTitle) {
+        toast.error('Please enter exam title')
+        return
+      }
+      if (!examCode) {
+        toast.error('Please enter exam code')
+        return
+      }
       const res = await examGenerateQuery.single()
       examData = res.data
       const { error: examError } = res
@@ -111,6 +121,7 @@ export default function teacher_first() {
         return
       }
     }
+
     const examId = examData?.id
     const payload = questionsFiltered.map(question => ({ question: question.question_text, answer: question.answer, teacher_id: userId, exam_id: examId, marks: question.marks }))
     const { status, error: questionError } = await supabase.from('questions').insert(payload)
@@ -157,6 +168,27 @@ export default function teacher_first() {
     }
     return userData
   }, [])
+  function addToPreview(event: any) {
+    event.preventDefault()
+
+    if (questions.length <= 0) {
+      toast.error('Please generate questions first')
+      return
+    }
+    const questionsFiltered = questions.reduce((acc: QuestionTypeGenerated[], question: any, index) => {
+      const marks = event.target[`marks${index + 1}`].value
+      if (event.target[`selectQuestion${index + 1}`].checked) {
+        acc.push({ ...question, marks })
+      }
+      return acc
+    }, [])
+    if (questionsFiltered.length <= 0) {
+      toast.error('Please select atleast one question')
+      return
+    }
+    setPreviewQuestions(questionsFiltered)
+    toast.success('Questions added to preview')
+  }
   return (
     <div
       key="1"
@@ -245,6 +277,34 @@ export default function teacher_first() {
           >
             Generate
           </button>
+
+          <div key="1" className="flex flex-cols items-center justify-center">
+            <div className="container flex flex-col items-center px-4 sp md:px-6">
+              <form className="flex flex-col mt-1 space-y-2 w-full max-w-md" onSubmit={addToPreview}>
+                {questions.map((question, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-4 w-full"
+                  >
+                    <Label htmlFor={`question${index + 1}`}>{`Question ${index + 1
+                      }`}</Label>
+                    <textarea
+                      id={`question${index + 1}`}
+                      className="w-full h-20 p-2 border rounded"
+                      placeholder={`Question ${index + 1} will appear here`}
+                      defaultValue={question.question_text} // Populate the textarea with question text
+                    ></textarea>
+                    <input id={`selectQuestion${index + 1}`} type="checkbox" />
+                    <Label htmlFor={`selectQuestion${index + 1}`}>Select</Label>
+                    <input id={`marks${index + 1}`} type="number" className='w-10 border rounded-lg' defaultValue={4} />
+                  </div>
+                ))}
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit" >
+                  Add Question
+                </button>
+              </form>
+            </div>
+          </div>
           <div>
             <div className='flex justify-center  gap-1'>
               <button className='bg-green-500 hover:bg-green-700 text-white font-thin text-xs py-2 px-4 rounded' onClick={() => setExam('create')}>Create New Exam</button>
@@ -270,7 +330,7 @@ export default function teacher_first() {
           <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
               <form className="flex flex-col mt-1 space-y-2 w-full max-w-md" onSubmit={onSubmit}>
-                {questions.map((question, index) => (
+                {previewQuestions.map((question, index) => (
                   <div
                     key={index}
                     className="flex items-center space-x-4 w-full"
@@ -288,7 +348,7 @@ export default function teacher_first() {
                     <input id={`marks${index + 1}`} type="number" className='w-10 border rounded-lg' defaultValue={4} />
                   </div>
                 ))}
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit" >
+                <button disabled={previewQuestions.length === 0} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-300" type="submit" >
                   Submit
                 </button>
               </form>

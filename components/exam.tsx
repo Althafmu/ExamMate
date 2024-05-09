@@ -45,12 +45,19 @@ export default function exam() {
   const [user, setUser] = useState<UserType>();
   const params = useSearchParams();
   const code = params.get('code');
+  const [exam, setExam] = useState<ExamType>();
+
   const [questions, setQuestions] = useState<QuestionTypeExam[]>();
   const userRole = useMemo(() => user?.role, [user]);
   const userId = useMemo(() => user?.id, [user]);
   useEffect(() => {
     if (code) {
-      getQuestions(code).then(setQuestions);
+      getQuestions(code).then(data => {
+        if (data && Array.isArray(data)) {
+          setQuestions(data[0])
+          setExam(data[1])
+        }
+      });
     }
   }, [code]);
   useEffect(() => {
@@ -132,13 +139,7 @@ export default function exam() {
     const totalMark = calculateTotalMark();
     // setTotalMark(totalMark); // Set the total mark in state
   };
-  const [exams, setExams] = useState<ExamType[]>();
 
-  useEffect(() => {
-    if (!exams) {
-      getExams().then(setExams);
-    }
-  }, []);
 
   return (
     <div className="mx-auto max-w-4xl px-4 flex flex-col space-y-4">
@@ -148,18 +149,16 @@ export default function exam() {
       <div className="space-y-2">
         <div className="border-t border-b border-gray-200 dark:border-gray-800">
           <div className="container grid items-center gap-4 px-4 py-4 md:gap-6 md:px-6">
-            <div className="flex items-center space-x-4">
-              {exams?.map((exam) => (
-                <div key={exam.id} className="w-1/5 p-4">
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-semibold">{exam.title}</h2>
-                    <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                      Exam code: {exam.code}
-                    </p>
-                  </div>
+            {exam && <div className="flex items-center space-x-4">
+              <div key={exam?.id} className="w-1/5 p-4">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold">{exam?.title}</h2>
+                  <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Exam code: {exam?.code}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            </div>}
             <div className="space-y-2">
               <h1 className="text-3xl font-bold">Instructions</h1>
 
@@ -242,10 +241,10 @@ export default function exam() {
 
 async function getQuestions(
   code: string,
-): Promise<QuestionTypeExam[] | undefined> {
+): Promise<[QuestionTypeExam[], ExamType] | undefined> {
   const { data, error } = await supabase
     .from('exams')
-    .select('questions(question,answer,teacher_id,id,marks)')
+    .select('id,code,title,date,questions(question,answer,teacher_id,id,marks)')
     .eq('code', code)
     .single();
   if (error) {
@@ -254,7 +253,7 @@ async function getQuestions(
   }
   const questions: any = data?.questions;
   if (Array.isArray(questions)) {
-    return questions as QuestionTypeExam[];
+    return [questions as QuestionTypeExam[], { id: data?.id, title: data?.title, code: data?.code, date: data?.date }]
   }
 }
 
@@ -268,7 +267,7 @@ async function submitAnswers(data: StudentExamLinkType) {
     toast.success('Answers submitted successfully');
 }
 async function getExams(): Promise<ExamType[]> {
-  const { data, error } = await supabase.from('exams').select('*');
+  const { data, error } = await supabase.from('exams').select('*')
   if (error) {
     toast.error(error.message);
     return [];

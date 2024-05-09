@@ -186,7 +186,7 @@ export default function teacher_first() {
       toast.error('Please select atleast one question')
       return
     }
-    setPreviewQuestions(questionsFiltered)
+    setPreviewQuestions(questions => [...questions, questionsFiltered])
     toast.success('Questions added to preview')
   }
   return (

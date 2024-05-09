@@ -83,14 +83,20 @@ export default function exam() {
       toast.error('Only students can take the exam');
       return;
     }
-    const answers =
-      questions?.map((question) => ({
-        question: question.question,
-        question_id: question.id,
-        answer: e.target[question.id].value as string,
-        marks: 0,
-        totalMark: question.marks,
-      })) || [];
+    const answersSet =
+      questions?.map((question) => {
+        let value: string | undefined = e.target[question.id].value as string
+        if (value.trim().length === 0) value = undefined
+        return ({
+          question: question.question,
+          question_id: question.id,
+          answer: e.target[question.id].value as string,
+          marks: 0,
+          totalMark: question.marks,
+        })
+      }) || [];
+    const answers = answersSet.filter((answer) => answer.answer)
+    console.log(answers)
     if (answers.length <= 0) {
       toast.error('Please answer atleast one questions');
       return;
@@ -114,7 +120,7 @@ export default function exam() {
     let total = 0;
     questions?.forEach((question) => {
       const mark = parseInt(
-        (document.getElementById(question.question_id) as HTMLInputElement)
+        (document.getElementById(question.id) as HTMLInputElement)
           ?.value || '0',
       );
       total += mark;
@@ -124,7 +130,7 @@ export default function exam() {
 
   const handleCalculateTotal = () => {
     const totalMark = calculateTotalMark();
-    setTotalMark(totalMark); // Set the total mark in state
+    // setTotalMark(totalMark); // Set the total mark in state
   };
   const [exams, setExams] = useState<ExamType[]>();
 
@@ -258,7 +264,7 @@ async function submitAnswers(data: StudentExamLinkType) {
     .upsert(data);
   if (error) toast.error(error.message);
   if (status !== 201) toast.error('Something went wrong');
-  if (status === 201) 
+  if (status === 201)
     toast.success('Answers submitted successfully');
 }
 async function getExams(): Promise<ExamType[]> {

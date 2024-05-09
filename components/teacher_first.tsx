@@ -186,7 +186,7 @@ export default function teacher_first() {
       toast.error('Please select atleast one question')
       return
     }
-    setPreviewQuestions(questions => [...questions, questionsFiltered])
+    setPreviewQuestions(questions => [...questions,...questionsFiltered])
     toast.success('Questions added to preview')
   }
   return (
@@ -200,83 +200,15 @@ export default function teacher_first() {
           <Label htmlFor="pdf">Upload PDF</Label>
           <input type="file" accept="application/pdf" onChange={extractText} />
         </div>
-        <h2 className="text-lg font-semibold mt-4">Choose Questions</h2>
         <div className="flex flex-col mt-2 space-y-2 w-full max-w-md">
-          <div className="flex items-center space-x-4 w-full">
-            <input
-              id="threeMark"
-              name="questionType"
-              type="radio"
-              value="3 mark"
-            />
-            <Label htmlFor="threeMark">3 mark questions</Label>
-            <select className="select w-full" id="threeMarkCount" name="count">
-              <option value="">Count</option>
-              {[...Array(20)].map((_, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4 w-full">
-            <input id="fourMark" type="radio" value="fourmark" />
-            <Label htmlFor="fourMark">4 mark questions</Label>
-            <select className="select w-full" id="fourMarkCount" name="count">
-              <option value="">Count</option>
-              {[...Array(20)].map((_, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4 w-full">
-            <input id="sevenMark" type="radio" value="sevenmark" />
-            <Label htmlFor="sevenMark">7 mark questions</Label>
-            <select className="select w-full" id="sevenMarkCount" name="count">
-              <option value="">Count</option>
-              {[...Array(20)].map((_, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4 w-full">
-            <input id="tenMark" type="radio" value="tenmark" />
-            <Label htmlFor="tenMark">10 mark questions</Label>
-            <select className="select w-full" id="tenMarkCount" name="count">
-              <option value="">Count</option>
-              {[...Array(20)].map((_, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4 w-full">
-            <input id="fourteenMark" type="radio" value="fourteenmark" />
-            <Label htmlFor="fourteenMark">14 mark questions</Label>
-            <select
-              className="select w-full"
-              id="fourteenMarkCount"
-              name="count"
-            >
-              <option value="">Count</option>
-              {[...Array(20)].map((_, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
+          
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={fetchData}
           >
             Generate
           </button>
+        <h2 className="text-lg font-semibold mt-4">Choose Questions</h2>
 
           <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
@@ -382,7 +314,6 @@ function getPrompt(text: string | undefined) {
       "difficulty": "Medium",
       "topic": "Theory",
       "question_text": "Explain the concept of [specific concept] in [subject], providing examples to illustrate your understanding.",
-      "answer": "The concept of [specific concept] in [subject] refers to [explanation]. For instance, [example 1] and [example 2] demonstrate how [specific concept] is applied in real-world scenarios."
     },
   ]
 `;

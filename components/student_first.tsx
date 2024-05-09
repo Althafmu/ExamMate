@@ -29,6 +29,7 @@ export default function Component() {
             <div key={exam.id} className="w-1/5 p-4">
               <div className="bg-white shadow-md rounded-lg p-6">
                 <p className="text-gray-500 dark:text-gray-400">Exam: {exam.title}</p>
+                <p className="text-gray-500 dark:text-gray-400">Exam code: {exam.code}</p>
                 <div className="mt-4">
                   <Link href={`/exam?code=${exam.code}`}>
                     <Button>Open</Button>

@@ -195,14 +195,14 @@ export default function exam() {
         </div>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="border border-gray-200 rounded-lg dark:border-gray-800">
-            {questions?.map((question) => (
+            {questions?.map((question, index) => (
               <div
                 key={question.id}
                 className="p-4 border-b border-gray-200 last:border-0 dark:border-gray-800"
               >
                 <div className="grid items-center gap-4 md:grid-cols-3">
                   <h3 className="text-base font-light ">
-                    1. {question.question}? ({question.marks}){' '}
+                    {index + 1}.{question.question}? ({question.marks}){' '}
                   </h3>
                   <div className="space-y-2 md:col-start-2 md:col-end-4">
                     <details>

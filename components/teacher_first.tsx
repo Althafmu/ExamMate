@@ -60,7 +60,7 @@ export default function teacher_first() {
       setQuestions(feedbacks);
     } catch (error) {
       toast.dismiss(toastId);
-      console.error('Error fetching resume feedback:', error);
+      console.error('Error fetching question feedback:', error);
     }
   };
   async function onSubmit(event: any) {

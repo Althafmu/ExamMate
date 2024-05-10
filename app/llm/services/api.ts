@@ -19,8 +19,8 @@ interface Config {
     const requestBody = {
       model: 'MISTRALAI/MIXTRAL-8X7B-INSTRUCT-V0.1', // Update this with your specific model
       prompt: `[INST] ${questionsDetails} [/INST]`,
-      max_tokens: 10000,
-      temperature: 0.2,
+      max_tokens: 15000,
+      temperature: 0.1,
     };
   
     //try {

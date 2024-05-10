@@ -296,9 +296,7 @@ export default function teacher_first() {
 
 function getPrompt(text: string | undefined) {
   return `
-  As a professor at a prestigious university renowned for its rigorous examination standards, you've been tasked with creating a set of challenging yet fair questions for the upcoming university exams. Your goal is to design questions that thoroughly test the students' understanding of the subject matter while also encouraging critical thinking and application of concepts. Utilize the provided text or data to generate a diverse range of questions spanning different topics and difficulty levels, ensuring that the exam adequately assesses the students' mastery of the course material. Your questions should be clear, concise, and structured in a way that facilitates effective evaluation of the students' knowledge and skills.
-  
-  Questions Details:
+  As a professor teaching a module, you have access to a tool that reads and summarizes the module notes from the given text. Your goal is to generate a set of at least 15 questions that thoroughly cover the content of the module. The questions should be designed to test the students' understanding of the subject matter and encourage critical thinking and application of concepts. Ensure that the questions span different topics within the module and vary in difficulty levels. The questions should be clear, concise, and structured in a way that facilitates effective evaluation of the students' knowledge and skills.Questions Details:
   ${JSON.stringify(text ?? '')}  
   
   Feedback:

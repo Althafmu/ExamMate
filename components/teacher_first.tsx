@@ -11,7 +11,7 @@ import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import pdfToText from 'react-pdftotext';
 import { toast } from 'sonner';
 
-export default function teacher_first() {
+export default function TeacherFirst() {
   const [text, setText] = useState<string>();
   const [questions, setQuestions] = useState<any[]>([]);
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
@@ -27,6 +27,7 @@ export default function teacher_first() {
   const userRole = useMemo(() => user?.role, [user])
   const userId = useMemo(() => user?.id, [user])
   const prompt = useMemo(() => getPrompt(text), [text])
+  const [newQuestion, setNewQuestion] = useState(1)
   useEffect(() => {
     if (userId && !teacherExams) {
       getTeacherExams(userId).then(data => {
@@ -175,7 +176,7 @@ export default function teacher_first() {
       toast.error('Please generate questions first')
       return
     }
-    const questionsFiltered = questions.reduce((acc: QuestionTypeGenerated[], question: any, index) => {
+    const questionsFiltered = questions.reduce((acc: QuestionTypeGenerated[], question, index) => {
       const marks = event.target[`marks${index + 1}`].value
       if (event.target[`selectQuestion${index + 1}`].checked) {
         acc.push({ ...question, marks })
@@ -186,7 +187,7 @@ export default function teacher_first() {
       toast.error('Please select atleast one question')
       return
     }
-    setPreviewQuestions(questions => [...questions,...questionsFiltered])
+    setPreviewQuestions(questions => [...questions, ...questionsFiltered])
     toast.success('Questions added to preview')
   }
   return (
@@ -201,14 +202,14 @@ export default function teacher_first() {
           <input type="file" accept="application/pdf" onChange={extractText} />
         </div>
         <div className="flex flex-col mt-2 space-y-2 w-full max-w-md">
-          
+
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={fetchData}
           >
             Generate
           </button>
-        <h2 className="text-lg font-semibold mt-4">Choose Questions</h2>
+          <h2 className="text-lg font-semibold mt-4">Choose Questions</h2>
 
           <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
@@ -259,6 +260,30 @@ export default function teacher_first() {
               }
             </div>
           </div>
+
+          <form
+            className="flex items-center space-x-4 w-full"
+            onSubmit={(e: any) => {
+              e.preventDefault()
+              const question_text = e.target['question'].value
+              if (question_text.trim().length <= 0) {
+                toast.error('Please enter a question')
+                return
+              }
+              const marks = e.target[1].value
+              setPreviewQuestions(prev => [...prev, { question_text, marks }])
+            }}
+          >
+            <textarea
+              id='question'
+              className="w-full h-20 p-2 border rounded"
+              placeholder={`Enter custom question here`}
+            ></textarea>
+            <input type="number" className='w-10 border rounded-lg' defaultValue={4} id='customMarks' />
+            <button type='submit' className='border rounded-lg p-1 px-3'
+            > Add  </button>
+          </form>
+          <h1 className="text-lg font-semibold mt-4 text-center" >Preview Questions</h1>
           <div key="1" className="flex flex-cols items-center justify-center">
             <div className="container flex flex-col items-center px-4 sp md:px-6">
               <form className="flex flex-col mt-1 space-y-2 w-full max-w-md" onSubmit={onSubmit}>
@@ -277,9 +302,10 @@ export default function teacher_first() {
                     ></textarea>
                     <input id={`selectQuestion${index + 1}`} type="checkbox" />
                     <Label htmlFor={`selectQuestion${index + 1}`}>Select</Label>
-                    <input id={`marks${index + 1}`} type="number" className='w-10 border rounded-lg' defaultValue={4} />
+                    <input id={`marks${index + 1}`} type="number" className='w-10 border rounded-lg' defaultValue={question.marks || 4} />
                   </div>
                 ))}
+
                 <button disabled={previewQuestions.length === 0} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-300" type="submit" >
                   Submit
                 </button>
